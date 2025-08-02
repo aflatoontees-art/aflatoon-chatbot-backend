@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aflatoon Tees Chatbot</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; }
+    .chatbot-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: rgb(255, 255, 0);
+      color: rgb(25, 25, 25);
+      padding: 12px 16px;
+      border-radius: 50px;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    .chat-popup {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      width: 360px;
+      height: 520px;
+      background: white;
+      border: 2px solid rgb(25, 25, 25);
+      border-radius: 10px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 999;
+    }
+    .chat-popup.open { display: flex; }
+    .chat-header {
+      background-color: rgb(25, 25, 25);
+      color: white;
+      padding: 12px;
+      font-weight: bold;
+      text-align: center;
+    }
+    .chat-body {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      background-color: #f2f2f2;
+    }
+    .chat-input {
+      display: flex;
+      border-top: 1px solid #ccc;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      outline: none;
+    }
+    .chat-input button {
+      background-color: rgb(255, 255, 0);
+      color: rgb(25, 25, 25);
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .bot-msg, .user-msg {
+      max-width: 80%;
+      margin: 6px 0;
+      padding: 10px;
+      border-radius: 10px;
+    }
+    .bot-msg {
+      background-color: #e0e0e0;
+      align-self: flex-start;
+    }
+    .user-msg {
+      background-color: #dcf8c6;
+      align-self: flex-end;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="chatbot-button" onclick="toggleChat()">💬</div>
+  <div class="chat-popup" id="chatPopup">
+    <div class="chat-header">Aflatoon Tees 🤖</div>
+    <div class="chat-body" id="chatBody">
+      <div class="bot-msg">👋 Hello, hope you are doing well! How can I help you today?</div>
+    </div>
+    <div class="chat-input">
+      <input type="text" id="userInput" placeholder="Type your question here..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("userInput");
+      const msg = input.value.trim();
+      if (!msg) return;
+
+      const chatBody = document.getElementById("chatBody");
+      const userMsg = document.createElement("div");
+      userMsg.className = "user-msg";
+      userMsg.textContent = msg;
+      chatBody.appendChild(userMsg);
+
+      const botReply = document.createElement("div");
+      botReply.className = "bot-msg";
+      botReply.textContent = "Typing...";
+      chatBody.appendChild(botReply);
+      chatBody.scrollTop = chatBody.scrollHeight;
+
+      input.value = "";
+
+      try {
+        const res = await fetch("https://your-backend-url.com/ask", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: msg })
+        });
+        const data = await res.json();
+        botReply.textContent = data.reply || "Sorry, I couldn't understand that.";
+      } catch (err) {
+        botReply.textContent = "There was an error connecting to the server.";
+      }
+
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function toggleChat() {
+      document.getElementById("chatPopup").classList.toggle("open");
+    }
+  </script>
+</body>
+</html>
